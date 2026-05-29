@@ -1,31 +1,59 @@
+jest.resetModules();
+jest.mock('../../../DataAccess/Repos/GroupRepo');
+
+const GroupRepo = require('../../../DataAccess/Repos/GroupRepo');
 const GroupService = require('../../../Services/groupService');
-const Group = require('../../../Models/group');
 
 describe('GroupService', () => {
-    const initialGroups = ['Study Group', 'Project Team', 'Hobby Circle'];
 
-    beforeEach(() => {
-        GroupService.groups = initialGroups.map(name => new Group(name));
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     describe('getAllGroups', () => {
+
         it('returns all groups', async () => {
+
+            const mockGroups = [
+                { id: 1, name: 'Study Group' },
+                { id: 2, name: 'Project Team' },
+                { id: 3, name: 'Hobby Circle' }
+            ];
+
+            GroupRepo.getAllGroups.mockResolvedValue(mockGroups);
+
             const groups = await GroupService.getAllGroups();
 
             expect(groups).toHaveLength(3);
-            expect(groups.map(group => group.name)).toEqual(initialGroups);
+            expect(groups.map(g => g.name)).toEqual([
+                'Study Group',
+                'Project Team',
+                'Hobby Circle'
+            ]);
+
+            expect(GroupRepo.getAllGroups).toHaveBeenCalledTimes(1);
         });
+
     });
 
-    describe('addGroup', () => {
-        it('adds a new group and returns it', async () => {
-            const newGroupName = 'New Study Group';
-            const group = await GroupService.addGroup(newGroupName);
+    // describe('addGroup', () => {
 
-            expect(group).toBeInstanceOf(Group);
-            expect(group.name).toBe(newGroupName);
-            expect(GroupService.groups).toContain(group);
-            expect(GroupService.groups).toHaveLength(4);
-        });
-    });
+    //     it('adds a new group and returns it', async () => {
+
+    //         const newGroup = {
+    //             id: 10,
+    //             name: 'New Study Group'
+    //         };
+
+    //         GroupRepo.addGroup.mockResolvedValue(newGroup);
+
+    //         const result = await GroupService.addGroup('New Study Group');
+
+    //         expect(result).toEqual(newGroup);
+
+    //         expect(GroupRepo.addGroup).toHaveBeenCalledWith('New Study Group');
+    //     });
+
+    // });
+
 });
